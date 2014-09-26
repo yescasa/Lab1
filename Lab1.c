@@ -32,7 +32,7 @@ _CONFIG2( IESO_OFF & SOSCSEL_SOSC & WUTSEL_LEG & FNOSC_PRIPLL & FCKSM_CSDCMD & O
 int main(void)
 {
 	// ****************************************************************************** //
-
+	int state=0;
 	// TODO: Configure AD1PCFG register for configuring input pins between analog input
 	// and digital IO.
 	AD1PCFG.PCFT0 = 1;
@@ -85,22 +85,21 @@ int main(void)
 	{
 		// TODO: For each distinct button press, alternate which
 		// LED is illuminated (on).
-	int state=0;	
+	
 	switch(state){
 
 			case(0):
-			
-
-				if(PORTBbits.RB2 == 0){
 					LATAbits.LATA0 = 1;
 					LATAbits.LATA1 = 0;
+
+				if(PORTBbits.RB2 == 0){
+
 					state = 1;
 				}
 
 
 				break;
 			case(1):
-
 				if(PORTBbits.RB2 == 1){
 					LATAbits.LATA0 = 0;
 					LATAbits.LATA1 = 1;
