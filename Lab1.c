@@ -35,34 +35,85 @@ int main(void)
 
 	// TODO: Configure AD1PCFG register for configuring input pins between analog input
 	// and digital IO.
-
+	AD1PCFG.PCFT0 = 1;
+	AD1PCFG.PCFG1 = 1;
 	// TODO: Configure TRIS register bits for Right and Left LED outputs.
-
+	TRISAbits.TRISA0 = 0;	
+	TRISAbits.TRISA1 =0;
 	// TODO: Configure LAT register bits to initialize Right LED to on.
-
+	LATAbits.LATA0 = 0;
 	// TODO: Configure ODC register bits to use open drain configuration for Right
 	// and Left LED output.
-
+	ODCAbits.ODA0 = 1;
+	ODCAbits.ODA1 = 1;
 	// TODO: Configure TRIS register bits for swtich input.
-
+	TRISBbits.TRISB2 = 1;
 	// TODO: Configure CNPU register bits to enable internal pullup resistor for switch
 	// input.
-
+	
+	CNPU1bits.CN6PUE = 1; 
 	// TODO: Setup Timer 1 to use internal clock (Fosc/2).
+	// Set Timer 1's period value regsiter to value for 250ms. Please note 
+	// T1CON's register settings below (internal Fosc/2 and 1:256 prescalar).
+	// 
+	//    Fosc     = XTFREQ * PLLMODE
+	//             = 7372800 * 4
+	//             = 29491200
+	// 
+	//    Fosc/2   = 29491200 / 2
+	//             = 14745600
+	//
+	//    Timer 1 Freq = (Fosc/2) / Prescaler
+	//                 = 14745600 / 256
+	//                 = 57600
+	//
+	//    PR1 = 250 ms / (1 / (T1 Freq))
+	//        = 250e-3 / (1 / 57600) 
+	//        = 250e-3 * 57600
+	//        = 14400 
 
 	// TODO: Setup Timer 1's prescaler to 1:256.
-
+	T1CON = 0x8030; 
  	// TODO: Set Timer 1 to be initially off.
-
+	TMR1 = 0;
 	// TODO: Clear Timer 1 value and reset interrupt flag
-
+	IFS0bits.T1IF = 0; 
+	IEC0bits.T1IE = 1;
 	// TODO: Set Timer 1's period value register to value for 5 ms.
-
+	PR1 = 575;
 	while(1)
 	{
 		// TODO: For each distinct button press, alternate which
 		// LED is illuminated (on).
+	int state=0;	
+	switch(state){
 
+			case(0):
+			
+
+				if(PORTBbits.RB2 == 0){
+					LATAbits.LATA0 = 1;
+					LATAbits.LATA1 = 0;
+					state = 1;
+				}
+
+
+				break;
+			case(1):
+
+				if(PORTBbits.RB2 == 1){
+					LATAbits.LATA0 = 0;
+					LATAbits.LATA1 = 1;
+
+					if(PORTBbits.RB2 == 1){
+					state = 0;				
+					}
+				}
+
+				break;
+		}
+
+	
 		// TODO: Use DebounceDelay() function to debounce button press
 		// and button release in software.
 	}
