@@ -6,6 +6,13 @@
 #include "p24fj64ga002.h"
 #include <stdio.h>
 
+void DebounceDelay(void){
+	int i=0;
+	for(i=0;i<10000;i++){
+	
+	}
+	return;
+}
 // ******************************************************************************************* //
 // Configuration bits for CONFIG1 settings.
 //
@@ -35,13 +42,14 @@ int main(void)
 	int state=0;
 	// TODO: Configure AD1PCFG register for configuring input pins between analog input
 	// and digital IO.
-	AD1PCFG.PCFT0 = 1;
-	AD1PCFG.PCFG1 = 1;
+	AD1PCFGbits.PCFG0 = 1;
+	AD1PCFGbits.PCFG1 = 1;
 	// TODO: Configure TRIS register bits for Right and Left LED outputs.
 	TRISAbits.TRISA0 = 0;	
 	TRISAbits.TRISA1 =0;
 	// TODO: Configure LAT register bits to initialize Right LED to on.
-	LATAbits.LATA0 = 0;
+	LATAbits.LATA0 = 1;
+	LATAbits.LATA1 = 0;
 	// TODO: Configure ODC register bits to use open drain configuration for Right
 	// and Left LED output.
 	ODCAbits.ODA0 = 1;
@@ -51,9 +59,10 @@ int main(void)
 	// TODO: Configure CNPU register bits to enable internal pullup resistor for switch
 	// input.
 	
-	CNPU1bits.CN6PUE = 1; 
+	CNPU1bits.CN6PUE = 0; 
+	CNEN1bits.CN6IE = 1;
 	// TODO: Setup Timer 1 to use internal clock (Fosc/2).
-	// Set Timer 1's period value regsiter to value for 250ms. Please note 
+	// Set Timer 1's period value regsiter to value for 5ms. Please note 
 	// T1CON's register settings below (internal Fosc/2 and 1:256 prescalar).
 	// 
 	//    Fosc     = XTFREQ * PLLMODE
@@ -73,24 +82,28 @@ int main(void)
 	//        = 14400 
 
 	// TODO: Setup Timer 1's prescaler to 1:256.
-	T1CON = 0x8030; 
  	// TODO: Set Timer 1 to be initially off.
-	TMR1 = 0;
+	T1CON = 0x0030; 
+
 	// TODO: Clear Timer 1 value and reset interrupt flag
-	IFS0bits.T1IF = 0; 
-	IEC0bits.T1IE = 1;
+	TMR1 = 0;
+
+	IFS0bits.T1IF = 0;		
+	
 	// TODO: Set Timer 1's period value register to value for 5 ms.
 	PR1 = 575;
 	while(1)
 	{
+	if(IEC0bits.T1IE == 1) {
 		// TODO: For each distinct button press, alternate which
 		// LED is illuminated (on).
 	
 	switch(state){
 
 			case(0):
-					LATAbits.LATA0 = 1;
-					LATAbits.LATA1 = 0;
+				DebounceDelay();
+				LATAbits.LATA0 = 1;
+				LATAbits.LATA1 = 0;
 
 				if(PORTBbits.RB2 == 0){
 
@@ -100,19 +113,20 @@ int main(void)
 
 				break;
 			case(1):
+				DebounceDelay();
 				if(PORTBbits.RB2 == 1){
 					LATAbits.LATA0 = 0;
 					LATAbits.LATA1 = 1;
 
-					if(PORTBbits.RB2 == 1){
+					if(PORTBbits.RB2 == 0){
 					state = 0;				
 					}
 				}
-
+		
 				break;
 		}
 
-	
+	}
 		// TODO: Use DebounceDelay() function to debounce button press
 		// and button release in software.
 	}
